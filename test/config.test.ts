@@ -58,12 +58,12 @@ test("parseArgs", () => {
 
 test("resolveConfig: --config relative to cwd, default ./mysql-mcp.json, error when nothing found", () => {
   const dir = mkdtempSync(join(tmpdir(), "mmg-"));
-  assert.throws(() => resolveConfig([], {}, dir), /No configuration found/);
+  assert.throws(() => resolveConfig([], {}, dir, dir), /No configuration found/);
   writeFileSync(join(dir, "mysql-mcp.json"), JSON.stringify({ connections: { a: { user: "u" } } }));
-  assert.deepEqual(Object.keys(resolveConfig([], {}, dir)), ["a"]);
+  assert.deepEqual(Object.keys(resolveConfig([], {}, dir, dir)), ["a"]);
   writeFileSync(join(dir, "other.json"), JSON.stringify({ connections: { b: { user: "u" } } }));
-  assert.deepEqual(Object.keys(resolveConfig(["--config", "other.json"], {}, dir)), ["b"]);
-  assert.deepEqual(Object.keys(resolveConfig([], { MYSQL_MCP_GUARD_CONFIG: "other.json" }, dir)), ["b"]);
+  assert.deepEqual(Object.keys(resolveConfig(["--config", "other.json"], {}, dir, dir)), ["b"]);
+  assert.deepEqual(Object.keys(resolveConfig([], { MYSQL_MCP_GUARD_CONFIG: "other.json" }, dir, dir)), ["b"]);
   writeFileSync(join(dir, "bad.json"), "{nope");
-  assert.throws(() => resolveConfig(["--config", "bad.json"], {}, dir), /not valid JSON/);
+  assert.throws(() => resolveConfig(["--config", "bad.json"], {}, dir, dir), /not valid JSON/);
 });
