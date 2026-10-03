@@ -1,4 +1,4 @@
-# mysql-mcp-guard
+# crispy-mysql-mcp-guard
 
 A [Model Context Protocol](https://modelcontextprotocol.io) server for MySQL (and MariaDB) where **every connection decides separately which operations it allows**: `select`, `insert`, `update`, `delete` and `ddl`.
 
@@ -16,7 +16,7 @@ Default is read only. Anything else has to be switched on, per connection, in pl
 No npm release yet; run it straight from GitHub (needs Node 20+):
 
 ```bash
-npx -y github:andrenalin282/mysql-mcp-guard --help
+npx -y github:andrenalin282/crispy-mysql-mcp-guard --help
 ```
 
 ### Claude Code / any `.mcp.json`
@@ -30,7 +30,7 @@ One connection, configured inline, same shape as most MCP servers:
       "type": "stdio",
       "command": "npx",
       "args": [
-        "-y", "github:andrenalin282/mysql-mcp-guard",
+        "-y", "github:andrenalin282/crispy-mysql-mcp-guard",
         "--name", "shop",
         "--host", "localhost",
         "--port", "3306",
@@ -54,7 +54,7 @@ Several connections, one config file (keeps passwords out of `.mcp.json`):
     "mysql": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "github:andrenalin282/mysql-mcp-guard", "--config", "/home/me/.config/mysql-mcp-guard/config.json"]
+      "args": ["-y", "github:andrenalin282/crispy-mysql-mcp-guard", "--config", "/home/me/.config/crispy-mysql-mcp-guard/config.json"]
     }
   }
 }
@@ -96,7 +96,7 @@ First match wins:
 2. single-connection flags (`--host`, `--user`, ...)
 3. `MYSQL_MCP_GUARD_CONFIG` (path to a config file)
 4. `./mysql-mcp.json`
-5. `~/.config/mysql-mcp-guard/config.json`
+5. `~/.config/crispy-mysql-mcp-guard/config.json`
 
 ## Connection options
 

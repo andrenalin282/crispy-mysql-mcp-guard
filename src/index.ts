@@ -9,14 +9,14 @@ async function main() {
   if (argv.includes("--help") || argv.includes("-h")) {
     process.stderr.write(
       [
-        "mysql-mcp-guard - MySQL MCP server with per-connection permissions",
+        "crispy-mysql-mcp-guard - MySQL MCP server with per-connection permissions",
         "",
         "  --config <file>        JSON config with one or more connections",
         "  single connection:     --name <n> --host <h> --port <p> --user <u> --password <pw>",
         "                         --database <db> --allow select,insert,update,delete,ddl",
         "                         [--ssl true|skip-verify] [--max-rows N] [--timeout-ms N]",
         "",
-        "Without options: MYSQL_MCP_GUARD_CONFIG, ./mysql-mcp.json, ~/.config/mysql-mcp-guard/config.json",
+        "Without options: MYSQL_MCP_GUARD_CONFIG, ./mysql-mcp.json, ~/.config/crispy-mysql-mcp-guard/config.json",
         "",
       ].join("\n"),
     );
@@ -35,6 +35,6 @@ async function main() {
 
 main().catch((e) => {
   // stdout is the MCP channel; diagnostics go to stderr only
-  process.stderr.write(`mysql-mcp-guard: ${e instanceof Error ? e.message : String(e)}\n`);
+  process.stderr.write(`crispy-mysql-mcp-guard: ${e instanceof Error ? e.message : String(e)}\n`);
   process.exit(1);
 });

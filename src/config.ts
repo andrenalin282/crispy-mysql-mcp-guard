@@ -153,13 +153,13 @@ export function configFromFlags(flags: Record<string, string>, env: NodeJS.Proce
   return parseConfig({ connections: { [flags.name ?? "default"]: clean } }, env);
 }
 
-/** Order: --config, single-connection flags, MYSQL_MCP_GUARD_CONFIG, ./mysql-mcp.json, ~/.config/mysql-mcp-guard/config.json */
+/** Order: --config, single-connection flags, MYSQL_MCP_GUARD_CONFIG, ./mysql-mcp.json, ~/.config/crispy-mysql-mcp-guard/config.json */
 export function resolveConfig(argv: string[], env: NodeJS.ProcessEnv = process.env, cwd: string = process.cwd()): Config {
   const args = parseArgs(argv);
   if (args.config) return loadConfigFile(resolve(cwd, args.config), env);
   if (Object.keys(args.flags).length > 0) return configFromFlags(args.flags, env);
   if (env.MYSQL_MCP_GUARD_CONFIG) return loadConfigFile(resolve(cwd, env.MYSQL_MCP_GUARD_CONFIG), env);
-  for (const p of [join(cwd, "mysql-mcp.json"), join(homedir(), ".config", "mysql-mcp-guard", "config.json")]) {
+  for (const p of [join(cwd, "mysql-mcp.json"), join(homedir(), ".config", "crispy-mysql-mcp-guard", "config.json")]) {
     if (existsSync(p)) return loadConfigFile(p, env);
   }
   throw new Error(

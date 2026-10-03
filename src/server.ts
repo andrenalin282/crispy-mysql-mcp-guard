@@ -15,7 +15,7 @@ function fail(e: unknown) {
 }
 
 export function createServer(conns: Connections, version = "0.1.0"): McpServer {
-  const server = new McpServer({ name: "mysql-mcp-guard", version });
+  const server = new McpServer({ name: "crispy-mysql-mcp-guard", version });
 
   const connection = z
     .string()
