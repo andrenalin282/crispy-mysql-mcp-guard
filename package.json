@@ -1,0 +1,43 @@
+{
+  "name": "@andrenalin282/mysql-mcp-guard",
+  "version": "0.1.0",
+  "description": "MySQL MCP server with per-connection permissions: select, insert, update, delete and ddl are enabled separately in a JSON config.",
+  "type": "module",
+  "license": "MIT",
+  "bin": {
+    "mysql-mcp-guard": "dist/index.js"
+  },
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    "mysql-mcp.example.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "prepare": "npm run build",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test test/*.test.ts"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "mysql",
+    "mariadb",
+    "claude"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.0",
+    "mysql2": "^3.24.5",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0"
+  }
+}

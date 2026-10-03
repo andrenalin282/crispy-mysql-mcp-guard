@@ -1,0 +1,21 @@
+{
+  "connections": {
+    "shop-readonly": {
+      "host": "localhost",
+      "port": 3306,
+      "user": "reader",
+      "password": "${SHOP_DB_PASSWORD}",
+      "database": "shop",
+      "allow": { "select": true }
+    },
+    "shop-dev": {
+      "host": "localhost",
+      "user": "root",
+      "password": "change-me",
+      "database": "shop_dev",
+      "allow": { "select": true, "insert": true, "update": true, "delete": true, "ddl": false },
+      "maxRows": 500,
+      "timeoutMs": 15000
+    }
+  }
+}
