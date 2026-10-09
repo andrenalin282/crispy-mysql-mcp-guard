@@ -19,6 +19,8 @@ No npm release yet; run it straight from GitHub (needs Node 20+):
 npx -y github:andrenalin282/crispy-mysql-mcp-guard --help
 ```
 
+Pin a release tag for reproducible installs (`main` can move): `npx -y github:andrenalin282/crispy-mysql-mcp-guard#v0.2.0 --help`.
+
 ### Claude Code / any `.mcp.json`
 
 One connection, configured inline, same shape as most MCP servers:
@@ -140,6 +142,17 @@ Command-line flags for a single connection: `--name --host --port --user --passw
 | `mysql_list_connections` | Connections with host, database, allowed operations, limits. No passwords. |
 | `mysql_query` | Runs one statement (`connection`, `sql`, optional `params` for `?` placeholders). Returns rows, `affectedRows`, `insertId`, `truncated`, `elapsedMs`. |
 | `mysql_schema` | Lists tables, or with `table` shows columns and indexes. Needs `select`. |
+| `mysql_dump` | Writes a SQL dump to a `.sql` file and returns path, size and row counts (not the content). Needs `select` only. See below. |
+
+### `mysql_dump`
+
+Parameters: `outputPath` (absolute, must end in `.sql`, parent directory must exist), optional `connection`, `database` (default: the connection's), `tables` (default: all), `structure` / `data` / `routines` (all default `true`), `overwrite` (default `false`).
+
+- Output: `DROP TABLE IF EXISTS` + `CREATE TABLE`, batched multi-row `INSERT`s, and with `routines` also views, triggers and stored procedures/functions (routines only when `tables` is not given). Triggers and routines use `DELIMITER ;;`, so restore with the `mysql`/`mariadb` client, not by pasting into a single-statement tool.
+- Consistent: one `START TRANSACTION WITH CONSISTENT SNAPSHOT, READ ONLY` for the whole dump. Generated columns are skipped on insert; JSON, binary and geometry values are written losslessly.
+- Not capped by `maxRows` (a dump must be complete). Each table's read is limited by the connection's `timeoutMs`; raise it for big tables.
+- The file is created with mode `600`, never overwrites without `overwrite: true`, and refuses symlinks and other non-regular files. A failed dump deletes its partial file. The server writes the file as the user running it, so the model chooses where on that machine; keep `select` off connections where that is not acceptable.
+- Restore: `mysql -h HOST -u USER -p DATABASE < dump.sql`.
 
 Writes run in a transaction that is committed on success and rolled back on error. DDL commits implicitly in MySQL, as always. `BIGINT` values beyond 2^53 are returned as strings. Binary columns are summarized instead of dumped.
 

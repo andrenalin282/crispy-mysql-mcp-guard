@@ -31,7 +31,7 @@ test("single connection from flags: tools, read ok, write denied", { skip }, asy
     ["--name", "t", "--host", "127.0.0.1", "--port", port!, "--user", "u", "--password", "pw", "--database", "t", "--allow", "select"],
     async (c) => {
       const tools = (await c.listTools()).tools.map((t) => t.name).sort();
-      assert.deepEqual(tools, ["mysql_list_connections", "mysql_query", "mysql_schema"]);
+      assert.deepEqual(tools, ["mysql_dump", "mysql_list_connections", "mysql_query", "mysql_schema"]);
 
       const list = JSON.parse(body(await c.callTool({ name: "mysql_list_connections", arguments: {} })));
       assert.equal(list[0].name, "t");

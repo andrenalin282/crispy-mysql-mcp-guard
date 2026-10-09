@@ -14,7 +14,7 @@ function fail(e: unknown) {
   return text(`Error: ${e instanceof Error ? e.message : String(e)}`, true);
 }
 
-export function createServer(conns: Connections, version = "0.1.0"): McpServer {
+export function createServer(conns: Connections, version = "0.2.0"): McpServer {
   const server = new McpServer({ name: "crispy-mysql-mcp-guard", version });
 
   const connection = z
@@ -97,6 +97,32 @@ export function createServer(conns: Connections, version = "0.1.0"): McpServer {
         const columns = await conns.run(conn, `SHOW FULL COLUMNS FROM ${target}`);
         const indexes = await conns.run(conn, `SHOW INDEX FROM ${target}`);
         return text({ connection: conn, table, columns: columns.rows, indexes: indexes.rows });
+      } catch (e) {
+        return fail(e);
+      }
+    },
+  );
+
+  server.registerTool(
+    "mysql_dump",
+    {
+      description:
+        "Write a SQL dump (CREATE TABLE + INSERT, optionally views, triggers, stored routines) of a database to a .sql file on the machine running this server. Needs the select permission only. Consistent snapshot, READ ONLY transaction. Returns path, size and row counts, not the content. Not capped by maxRows; each table's read is limited by the connection's timeoutMs.",
+      inputSchema: {
+        connection,
+        outputPath: z.string().min(1).describe("Absolute path ending in .sql. Parent directory must exist."),
+        database: z.string().optional().describe("Schema to dump; defaults to the connection's database."),
+        tables: z.array(z.string()).optional().describe("Only these tables/views; default all."),
+        structure: z.boolean().default(true).describe("Include DROP/CREATE TABLE."),
+        data: z.boolean().default(true).describe("Include INSERT statements."),
+        routines: z.boolean().default(true).describe("Include views, triggers, procedures and functions (routines only when 'tables' is not given)."),
+        overwrite: z.boolean().default(false).describe("Replace an existing regular file."),
+      },
+      annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: true },
+    },
+    async ({ connection: name, ...rest }) => {
+      try {
+        return text(await conns.dump(conns.resolveName(name), rest));
       } catch (e) {
         return fail(e);
       }

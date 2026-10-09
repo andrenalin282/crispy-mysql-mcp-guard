@@ -2,6 +2,7 @@ import mysql, { type Pool, type PoolConnection } from "mysql2/promise";
 import type { Connection as RawConnection } from "mysql2";
 import type { Config, ConnectionConfig } from "./config.js";
 import { classify, type Op } from "./sql.js";
+import { writeDump, type DumpResult } from "./dump.js";
 
 export interface QueryResult {
   connection: string;
@@ -185,6 +186,39 @@ export class Connections {
     } finally {
       if (destroyed) conn.destroy();
       else conn.release();
+    }
+  }
+
+  /** Writes a SQL dump to a file. Needs the select permission; runs in a consistent-snapshot READ ONLY transaction. */
+  async dump(
+    connection: string,
+    o: { database?: string; tables?: string[]; structure: boolean; data: boolean; routines: boolean; outputPath: string; overwrite: boolean },
+  ): Promise<DumpResult> {
+    const cfg = this.get(connection);
+    if (!cfg.allow.select) {
+      throw new Error(`Connection '${connection}' does not allow: select. Enabled operations: ${allowedOps(cfg).join(", ") || "none"}.`);
+    }
+    const database = o.database ?? cfg.database;
+    if (!database) throw new Error("'database' is required: the connection has no default database.");
+    if (!o.structure && !o.data && !o.routines) throw new Error("Nothing to dump: structure, data and routines are all false.");
+    const conn: PoolConnection = await this.pool(connection).getConnection();
+    let destroyed = false;
+    try {
+      await conn.query("SET SESSION sql_mode = REPLACE(@@sql_mode, 'NO_BACKSLASH_ESCAPES', '')");
+      await conn.query("START TRANSACTION WITH CONSISTENT SNAPSHOT, READ ONLY");
+      try {
+        return await writeDump(conn, { ...o, database, timeoutMs: cfg.timeoutMs });
+      } catch (e) {
+        // a half-read result stream leaves the connection unusable
+        destroyed = true;
+        throw e;
+      }
+    } finally {
+      if (destroyed) conn.destroy();
+      else {
+        await conn.query("ROLLBACK").catch(() => {});
+        conn.release();
+      }
     }
   }
 
