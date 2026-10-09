@@ -90,6 +90,17 @@ function streamRows(raw: RawConnection, sql: string, timeout: number): AsyncIter
   return (q as unknown as { stream(): AsyncIterable<unknown[]> }).stream();
 }
 
+/**
+ * SQL literal for one cell. The driver can hand back JSON columns already parsed (object/array); `escape` would turn
+ * those into `key` = value pairs or lists, i.e. broken SQL and lost data. Serialise them back to JSON text instead.
+ */
+export function literal(v: unknown): string {
+  if (v !== null && typeof v === "object" && !(v instanceof Date) && !Buffer.isBuffer(v)) {
+    return escape(JSON.stringify(v));
+  }
+  return escape(v as never);
+}
+
 export async function writeDump(conn: PoolConnection, opts: DumpOptions): Promise<DumpResult> {
   const started = Date.now();
   await checkOutputPath(opts.outputPath, opts.overwrite);
@@ -134,7 +145,7 @@ export async function writeDump(conn: PoolConnection, opts: DumpOptions): Promis
             batchBytes = 0;
           };
           for await (const r of streamRows(conn.connection as unknown as RawConnection, `SELECT ${names.join(", ")} FROM ${id}`, opts.timeoutMs)) {
-            const tuple = `(${r.map((v) => escape(v as never)).join(", ")})`;
+            const tuple = `(${r.map(literal).join(", ")})`;
             batch.push(tuple);
             batchBytes += tuple.length;
             count++;

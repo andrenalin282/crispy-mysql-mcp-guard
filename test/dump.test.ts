@@ -106,3 +106,11 @@ test("guards: select permission, path rules, overwrite, symlink", { skip }, asyn
   const again = await c.dump("w", { ...o, overwrite: true, outputPath: join(dir, "a.sql") });
   assert.ok(again.bytes > 0);
 });
+
+test("literal serialises parsed JSON (object/array) back to quoted JSON text", async () => {
+  const { literal } = await import("../src/dump.js");
+  assert.equal(literal({ a: 1, b: [2] }), `'{\\"a\\":1,\\"b\\":[2]}'`);
+  assert.equal(literal([1, 2]), "'[1,2]'");
+  assert.equal(literal(null), "NULL");
+  assert.equal(literal("x"), "'x'");
+});
