@@ -14,7 +14,7 @@ function fail(e: unknown) {
   return text(`Error: ${e instanceof Error ? e.message : String(e)}`, true);
 }
 
-export function createServer(conns: Connections, version = "0.2.0"): McpServer {
+export function createServer(conns: Connections, version = "0.2.1"): McpServer {
   const server = new McpServer({ name: "crispy-mysql-mcp-guard", version });
 
   const connection = z

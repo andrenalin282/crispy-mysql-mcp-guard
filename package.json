@@ -1,6 +1,6 @@
 {
   "name": "crispy-mysql-mcp-guard",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "MySQL MCP server with per-connection permissions: select, insert, update, delete and ddl are enabled separately in a JSON config.",
   "type": "module",
   "license": "MIT",

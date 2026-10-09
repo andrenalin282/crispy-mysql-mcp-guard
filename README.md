@@ -19,7 +19,7 @@ No npm release yet; run it straight from GitHub (needs Node 20+):
 npx -y github:andrenalin282/crispy-mysql-mcp-guard --help
 ```
 
-Pin a release tag for reproducible installs (`main` can move): `npx -y github:andrenalin282/crispy-mysql-mcp-guard#v0.2.0 --help`.
+Pin a release tag for reproducible installs (`main` can move): `npx -y github:andrenalin282/crispy-mysql-mcp-guard#v0.2.1 --help`.
 
 ### Claude Code / any `.mcp.json`
 
