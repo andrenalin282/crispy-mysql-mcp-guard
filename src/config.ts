@@ -23,15 +23,27 @@ const ConnectionSchema = z
     password: z.string().default(""),
     database: z.string().optional(),
     ssl: z.union([z.boolean(), z.literal("skip-verify")]).default(false),
-    allow: AllowSchema.default({}),
+    allow: AllowSchema.prefault({}),
     maxRows: z.number().int().min(1).max(100000).default(1000),
     timeoutMs: z.number().int().min(100).max(600000).default(30000),
   })
   .strict();
 
+const CONNECTION_NAME_RE = /^[A-Za-z0-9_.-]+$/;
+
 const FileSchema = z
   .object({
-    connections: z.record(z.string().regex(/^[A-Za-z0-9_.-]+$/, "connection names may only use A-Z a-z 0-9 _ . -"), ConnectionSchema),
+    connections: z.record(z.string(), ConnectionSchema).superRefine((conns, ctx) => {
+      for (const name of Object.keys(conns)) {
+        if (!CONNECTION_NAME_RE.test(name)) {
+          ctx.addIssue({
+            code: "custom",
+            path: [name],
+            message: "connection names may only use A-Z a-z 0-9 _ . -",
+          });
+        }
+      }
+    }),
   })
   .strict();
 
